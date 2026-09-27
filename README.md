@@ -22,3 +22,20 @@ Operator level 3 is also allowed. If LuckPerms is unavailable, non-operators are
 ## Dependencies
 
 Requires FTB Teams for NeoForge 1.21.1. The implementation uses the public FTB Teams API (`FTBTeamsAPI`, `TeamManager`, `Team`, and `TeamRank`) rather than FTB Teams implementation classes.
+
+## Java API
+
+Other mods can use the simple `FTBTeamsUtilAPI` helper:
+
+```java
+FTBTeamsUtilAPI.getTeamMembers(playerUuid);
+```
+
+This returns an immutable `Set<UUID>` containing the members of the player's current effective FTB Team. It returns an empty set when no team is available.
+
+Additional helpers are available:
+
+```java
+FTBTeamsUtilAPI.getTeam(playerUuid);
+FTBTeamsUtilAPI.getOnlineTeamMembers(playerUuid);
+```
