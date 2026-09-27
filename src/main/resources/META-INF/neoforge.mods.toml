@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[${loader_version_range},)"
+loaderVersion="${loader_version_range}"
 license="${mod_license}"
 
 [[mods]]
@@ -19,7 +19,7 @@ side="SERVER"
 [[dependencies.ftb_teams_util]]
 modId="minecraft"
 type="required"
-versionRange="[${minecraft_version},)"
+versionRange="${minecraft_version_range}"
 ordering="NONE"
 side="SERVER"
 
