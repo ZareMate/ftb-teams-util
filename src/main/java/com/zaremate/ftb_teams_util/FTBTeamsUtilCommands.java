@@ -42,7 +42,6 @@ public final class FTBTeamsUtilCommands {
             MinecraftServer server = ctx.getSource().getServer();
             List<String> values = new ArrayList<>();
             server.getPlayerList().getPlayers().forEach(p -> values.add(p.getGameProfile().getName()));
-            server.getProfileCache().ifPresent(c -> c.getTopMRUProfiles().forEach(p -> values.add(p.getName())));
             for (Team team : FTBTeamsAPI.api().getManager().getTeams()) { values.add(team.getShortName()); values.add(team.getId().toString()); }
             return SharedSuggestionProvider.suggest(values.stream().distinct().sorted(String.CASE_INSENSITIVE_ORDER).toList(), builder);
         };
@@ -80,7 +79,7 @@ public final class FTBTeamsUtilCommands {
     private static int sendAdminMessage(CommandSourceStack source, String identifier, String message) {
         Team team = resolveTeamOnly(FTBTeamsAPI.api().getManager(), identifier);
         if (team == null) { source.sendFailure(Component.literal("Team not found: " + identifier)); return 0; }
-        team.sendMessage(net.minecraft.util.Util.NIL_UUID, Component.literal("[ADM] " + message).withStyle(s -> s.withColor(0xFF5555)));
+        team.sendMessage(net.minecraft.Util.NIL_UUID, Component.literal("[ADM] " + message).withStyle(s -> s.withColor(0xFF5555)));
         source.sendSuccess(() -> Component.literal("Sent admin message to ").append(team.getName()).withStyle(ChatFormatting.GREEN), false);
         return 1;
     }
@@ -102,12 +101,12 @@ public final class FTBTeamsUtilCommands {
     private static UUID resolvePlayerUuid(MinecraftServer server, String id) {
         UUID uuid = parseUuid(id); if (uuid != null) return uuid;
         ServerPlayer online = server.getPlayerList().getPlayerByName(id); if (online != null) return online.getUUID();
-        return server.getProfileCache().flatMap(c -> c.get(id)).map(p -> p.getId()).orElse(null);
+        return server.getProfileCache().get(id).map(p -> p.getId()).orElse(null);
     }
 
     private static String playerName(MinecraftServer server, UUID uuid) {
         ServerPlayer online = server.getPlayerList().getPlayer(uuid); if (online != null) return online.getGameProfile().getName();
-        return server.getProfileCache().flatMap(c -> c.get(uuid)).map(p -> p.getName()).orElse(uuid.toString());
+        return server.getProfileCache().get(uuid).map(p -> p.getName()).orElse(uuid.toString());
     }
 
     private static UUID parseUuid(String text) { try { return UUID.fromString(text); } catch (IllegalArgumentException e) { return null; } }
