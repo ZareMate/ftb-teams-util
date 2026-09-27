@@ -27,7 +27,7 @@ configurations { runtimeClasspath.extendsFrom localRuntime }
 
 repositories {
     maven { url = 'https://maven.neoforged.net/releases' }
-    maven { url = 'https://maven.ftb.team/releases' }
+    maven { url = 'https://maven.ftb.dev/releases' }
 }
 
 dependencies {
