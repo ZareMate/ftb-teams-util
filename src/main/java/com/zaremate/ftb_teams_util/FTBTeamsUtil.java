@@ -6,6 +6,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.slf4j.Logger;
 
@@ -17,7 +18,9 @@ public final class FTBTeamsUtil {
     public static final String PERMISSION_ADM_MSG = "ftbteamsutil.adm_msg";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public FTBTeamsUtil() {}
+    public FTBTeamsUtil() {
+        NeoForge.EVENT_BUS.register(FTBTeamsUtil.class);
+    }
 
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
