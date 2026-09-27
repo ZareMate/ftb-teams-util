@@ -38,7 +38,7 @@ dependencies {
 }
 
 tasks.withType(ProcessResources).configureEach {
-    def replaceProperties = [minecraft_version:minecraft_version, minecraft_version_range:minecraft_version_range, neo_version:neo_version, loader_version_range:loader_version_range, mod_id:mod_id, mod_name:mod_name, mod_license:mod_license, mod_version:mod_version]
+    def replaceProperties = [minecraft_version:minecraft_version, minecraft_version_range:minecraft_version_range, neo_version:neo_version, loader_version_range:loader_version_range, mod_id:mod_id, mod_name:mod_name, mod_license:mod_license, mod_version:mod_version, ftb_teams_version:ftb_teams_version]
     inputs.properties replaceProperties
     filesMatching(['META-INF/neoforge.mods.toml']) { expand replaceProperties }
 }
