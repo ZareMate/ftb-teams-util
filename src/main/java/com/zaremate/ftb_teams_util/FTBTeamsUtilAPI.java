@@ -40,7 +40,7 @@ public final class FTBTeamsUtilAPI {
      */
     public static Set<UUID> getTeamMembers(UUID playerUuid) {
         return getTeam(playerUuid)
-                .map(team -> Collections.unmodifiableSet(team.getMembers()))
+                .map(team -> Set.copyOf(team.getMembers()))
                 .orElseGet(Collections::emptySet);
     }
 
