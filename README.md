@@ -4,10 +4,10 @@ NeoForge 1.21.1 utility mod for FTB Teams.
 
 ## Commands
 
-- `/ftbteams-util team <player|offline-player|uuid|team-name|team-uuid>`
-- `/ftbteams-util adm-msg <team-name|team-uuid> <message>`
+- `/ftbteams-util team <player|offline-player|uuid|team-name|team-name#8char-id|team-uuid>`
+- `/ftbteams-util adm-msg <team-name|team-name#8char-id|team-uuid> <message>`
 
-`team` displays the team ID, name, type, owner UUID, and every member with their FTB Teams rank and UUID. Player names are resolved from online players and the Minecraft GameProfile cache, so offline names are supported. UUIDs are accepted for both players and teams.
+`team` displays the team ID, name, type, owner UUID, and every member with their FTB Teams rank and UUID. Player names are resolved from online players and the Minecraft GameProfile cache, so offline names are supported. UUIDs are accepted for both players and teams. Team names can be used alone if unique. When multiple teams share a name, use the `name#8-character-UUID-prefix` form, for example `The_Hidden_Hand_Mafia#261bfebf`. Team names containing `#` are supported via the same identifier syntax.
 
 `adm-msg` sends `[ADM] <message>` through FTB Teams team chat, rendered red.
 
