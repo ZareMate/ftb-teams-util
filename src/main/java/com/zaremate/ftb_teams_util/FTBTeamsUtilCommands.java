@@ -50,7 +50,7 @@ public final class FTBTeamsUtilCommands {
             MinecraftServer server = ctx.getSource().getServer();
             List<String> values = new ArrayList<>();
             server.getPlayerList().getPlayers().forEach(p -> values.add(p.getGameProfile().getName()));
-            for (Team team : FTBTeamsAPI.api().getManager().getTeams()) { values.add(team.getShortName()); values.add(team.getShortName() + "#" + team.getId().toString().substring(0, 8)); values.add(team.getId().toString()); }
+            for (Team team : FTBTeamsAPI.api().getManager().getTeams()) { values.add(team.getShortName() + "#" + team.getId().toString().substring(0, 8)); }
             return SharedSuggestionProvider.suggest(values.stream().distinct().sorted(String.CASE_INSENSITIVE_ORDER).toList(), builder);
         };
     }
@@ -58,7 +58,7 @@ public final class FTBTeamsUtilCommands {
     private static SuggestionProvider<CommandSourceStack> teamSuggestions() {
         return (ctx, builder) -> {
             List<String> values = new ArrayList<>();
-            for (Team team : FTBTeamsAPI.api().getManager().getTeams()) { values.add(team.getShortName()); values.add(team.getShortName() + "#" + team.getId().toString().substring(0, 8)); values.add(team.getId().toString()); }
+            for (Team team : FTBTeamsAPI.api().getManager().getTeams()) { values.add(team.getShortName() + "#" + team.getId().toString().substring(0, 8)); }
             return SharedSuggestionProvider.suggest(values.stream().distinct().sorted(String.CASE_INSENSITIVE_ORDER).toList(), builder);
         };
     }
@@ -75,9 +75,7 @@ public final class FTBTeamsUtilCommands {
                         .regionMatches(true, 0, suffix, 0, suffix.length()))
                 .toList();
         }
-        return manager.getTeams().stream()
-            .filter(t -> t.getShortName().equalsIgnoreCase(identifier))
-            .toList();
+        return List.of();
     }
 
     private static boolean reportAmbiguous(CommandSourceStack source, String identifier, List<Team> matches) {
@@ -94,8 +92,8 @@ public final class FTBTeamsUtilCommands {
         TeamManager manager = FTBTeamsAPI.api().getManager();
         List<Team> matches = matchingTeams(manager, identifier);
         if (reportAmbiguous(source, identifier, matches)) return 0;
-        Team team = matches.size() == 1 ? matches.get(0)
-            : identifier.contains("#") ? null : resolveTeamOrPlayer(manager, source.getServer(), identifier);
+        Team team = identifier.contains("#") ? (matches.size() == 1 ? matches.get(0) : null)
+            : resolvePlayerTeam(manager, source.getServer(), identifier);
         if (team == null) { source.sendFailure(Component.literal("No FTB Team found for: " + identifier)); return 0; }
         source.sendSuccess(() -> Component.literal("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━").withStyle(ChatFormatting.DARK_GRAY), false);
         source.sendSuccess(() -> Component.literal("FTB TEAM").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
@@ -118,26 +116,16 @@ public final class FTBTeamsUtilCommands {
         TeamManager manager = FTBTeamsAPI.api().getManager();
         List<Team> matches = matchingTeams(manager, identifier);
         if (reportAmbiguous(source, identifier, matches)) return 0;
-        Team team = matches.size() == 1 ? matches.get(0)
-            : identifier.contains("#") ? null : resolveTeamOnly(manager, identifier);
-        if (team == null) { source.sendFailure(Component.literal("Team not found: " + identifier)); return 0; }
+        Team team = identifier.contains("#") && matches.size() == 1 ? matches.get(0) : null;
+        if (team == null) { source.sendFailure(Component.literal("Team not found (use Name#8char-id): " + identifier)); return 0; }
         team.sendMessage(net.minecraft.Util.NIL_UUID, Component.literal("[ADM] " + message).withStyle(s -> s.withColor(0xFF5555)));
         source.sendSuccess(() -> Component.literal("Sent admin message to ").append(team.getName()).withStyle(ChatFormatting.GREEN), false);
         return 1;
     }
 
-    private static Team resolveTeamOrPlayer(TeamManager manager, MinecraftServer server, String id) {
-        UUID uuid = parseUuid(id);
-        if (uuid != null) { Team t = manager.getTeamByID(uuid).orElse(null); return t != null ? t : manager.getTeamForPlayerID(uuid).orElse(null); }
-        Team t = manager.getTeamByName(id).orElse(null);
-        if (t != null) return t;
-        UUID player = resolvePlayerUuid(server, id);
-        return player == null ? null : manager.getTeamForPlayerID(player).orElse(null);
-    }
-
-    private static Team resolveTeamOnly(TeamManager manager, String id) {
-        UUID uuid = parseUuid(id);
-        return uuid != null ? manager.getTeamByID(uuid).orElse(null) : manager.getTeamByName(id).orElse(null);
+    private static Team resolvePlayerTeam(TeamManager manager, MinecraftServer server, String identifier) {
+        UUID playerId = resolvePlayerUuid(server, identifier);
+        return playerId == null ? null : manager.getTeamForPlayerID(playerId).orElse(null);
     }
 
     private static UUID resolvePlayerUuid(MinecraftServer server, String id) {
