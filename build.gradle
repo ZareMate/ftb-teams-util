@@ -35,6 +35,8 @@ dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
     implementation "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
     compileOnly "net.luckperms:api:5.5"
+    testImplementation platform("org.junit:junit-bom:5.11.4")
+    testImplementation "org.junit.jupiter:junit-jupiter"
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -44,3 +46,8 @@ tasks.withType(ProcessResources).configureEach {
 }
 
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
