@@ -35,13 +35,12 @@ public final class FTBTeamsUtilCommands {
                 .suggests(teamSuggestions())
                 .executes(c -> {
                     String input = StringArgumentType.getString(c, "input");
-                    int separator = input.indexOf(' ');
-                    if (separator < 1 || separator == input.length() - 1) {
+                    TeamCommandParser.AdminMessage parsed = TeamCommandParser.parseAdminMessage(input);
+                    if (parsed == null) {
                         c.getSource().sendFailure(Component.literal("Usage: /ftbteams-util adm-msg <team> <message>"));
                         return 0;
                     }
-                    return sendAdminMessage(c.getSource(), input.substring(0, separator),
-                        input.substring(separator + 1));
+                    return sendAdminMessage(c.getSource(), parsed.teamIdentifier(), parsed.message());
                 }));
     }
 
@@ -64,18 +63,10 @@ public final class FTBTeamsUtilCommands {
     }
 
     private static List<Team> matchingTeams(TeamManager manager, String identifier) {
-        int hash = identifier.lastIndexOf('#');
-        if (hash >= 0) {
-            String name = identifier.substring(0, hash);
-            String suffix = identifier.substring(hash + 1);
-            if (name.isEmpty() || !suffix.matches("[0-9a-fA-F]{8}")) return List.of();
-            return manager.getTeams().stream()
-                .filter(t -> t.getShortName().equalsIgnoreCase(name)
-                    && t.getId().toString().replace("-", "")
-                        .regionMatches(true, 0, suffix, 0, suffix.length()))
-                .toList();
-        }
-        return List.of();
+        if (!TeamCommandParser.isTeamIdentifier(identifier)) return List.of();
+        return manager.getTeams().stream()
+            .filter(t -> TeamCommandParser.matchesTeam(identifier, t.getShortName(), t.getId()))
+            .toList();
     }
 
     private static boolean reportAmbiguous(CommandSourceStack source, String identifier, List<Team> matches) {
@@ -92,7 +83,7 @@ public final class FTBTeamsUtilCommands {
         TeamManager manager = FTBTeamsAPI.api().getManager();
         List<Team> matches = matchingTeams(manager, identifier);
         if (reportAmbiguous(source, identifier, matches)) return 0;
-        Team team = identifier.contains("#") ? (matches.size() == 1 ? matches.get(0) : null)
+        Team team = !TeamCommandParser.isPlayerLookup(identifier) ? (matches.size() == 1 ? matches.get(0) : null)
             : resolvePlayerTeam(manager, source.getServer(), identifier);
         if (team == null) { source.sendFailure(Component.literal("No FTB Team found for: " + identifier)); return 0; }
         source.sendSuccess(() -> Component.literal("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━").withStyle(ChatFormatting.DARK_GRAY), false);
@@ -116,7 +107,7 @@ public final class FTBTeamsUtilCommands {
         TeamManager manager = FTBTeamsAPI.api().getManager();
         List<Team> matches = matchingTeams(manager, identifier);
         if (reportAmbiguous(source, identifier, matches)) return 0;
-        Team team = identifier.contains("#") && matches.size() == 1 ? matches.get(0) : null;
+        Team team = TeamCommandParser.isTeamIdentifier(identifier) && matches.size() == 1 ? matches.get(0) : null;
         if (team == null) { source.sendFailure(Component.literal("Team not found (use Name#8char-id): " + identifier)); return 0; }
         team.sendMessage(net.minecraft.Util.NIL_UUID, Component.literal("[ADM] " + message).withStyle(s -> s.withColor(0xFF5555)));
         source.sendSuccess(() -> Component.literal("Sent admin message to ").append(team.getName()).withStyle(ChatFormatting.GREEN), false);
