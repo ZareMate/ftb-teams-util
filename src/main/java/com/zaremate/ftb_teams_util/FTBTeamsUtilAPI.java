@@ -6,6 +6,8 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.OptionalInt;
+import dev.ftb.mods.ftbteams.api.property.TeamProperties;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,6 +32,16 @@ public final class FTBTeamsUtilAPI {
         }
 
         return FTBTeamsAPI.api().getManager().getTeamForPlayerID(playerUuid);
+    }
+
+    /**
+     * Returns the effective team's color as a 24-bit RGB integer (0xRRGGBB).
+     * Empty for a null UUID, unloaded team manager, or missing team/color.
+     * Includes personal teams; callers decide whether to display them.
+     */
+    public static OptionalInt getTeamColor(UUID playerUuid) {
+        var color = getTeam(playerUuid).map(team -> team.getProperty(TeamProperties.COLOR));
+        return color.isPresent() ? OptionalInt.of(color.get().rgb() & 0xFFFFFF) : OptionalInt.empty();
     }
 
     /**

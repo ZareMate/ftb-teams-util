@@ -39,3 +39,9 @@ Additional helpers are available:
 FTBTeamsUtilAPI.getTeam(playerUuid);
 FTBTeamsUtilAPI.getOnlineTeamMembers(playerUuid);
 ```
+
+### Team color API (1.0.1)
+
+`FTBTeamsUtilAPI.getTeamColor(UUID)` returns `OptionalInt` containing the effective
+team's 24-bit RGB color (`0xRRGGBB`). Null UUIDs, an unloaded manager, missing teams
+and missing color values return empty. Personal-team colors are included.
